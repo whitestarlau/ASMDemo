@@ -1,15 +1,16 @@
 plugins {
     id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
     namespace 'com.example.asmdemo'
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.example.asmdemo"
         minSdk 28
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -26,9 +27,16 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
 }
 
+import com.example.asm.effectwidget.EffectWidgetPlugin
+apply plugin: EffectWidgetPlugin
+
 dependencies {
+    implementation 'androidx.core:core-ktx:1.7.0'
 
     implementation 'androidx.appcompat:appcompat:1.6.0'
     implementation 'com.google.android.material:material:1.8.0'
@@ -36,4 +44,8 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
+    implementation 'org.ow2.asm:asm:9.3'
+    implementation 'org.ow2.asm:asm-commons:9.3'
+    implementation 'com.google.code.gson:gson:2.9.0'
 }

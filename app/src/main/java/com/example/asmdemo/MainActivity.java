@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
+import com.example.MyAnnotation;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override

@@ -14,4 +14,3 @@ dependencyResolutionManagement {
 }
 rootProject.name = "ASMDemo"
 include ':app'
-include ':buildSrc'
