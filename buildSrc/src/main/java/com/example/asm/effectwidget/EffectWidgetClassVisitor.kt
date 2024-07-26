@@ -84,7 +84,6 @@ class EffectWidgetClassVisitor(nextVisitor: ClassVisitor, private val className:
                                 "dispatchGenericMotionEvent",
                                 "(Landroid/view/MotionEvent;)V",
                                 false)
-                            methodVisitor.visitVarInsn(ALOAD, 0)
                         }
                         "dispatchTouchEvent" -> {
                             dispatchTouchEventMethodExist = true
@@ -100,7 +99,6 @@ class EffectWidgetClassVisitor(nextVisitor: ClassVisitor, private val className:
                                 "dispatchTouchEvent",
                                 "(Landroid/view/MotionEvent;)V",
                                 false)
-                            methodVisitor.visitVarInsn(ALOAD, 0)
                         }
                         "onAttachedToWindow" -> {
                             onAttachedToWindowMethodExist = true
@@ -115,7 +113,6 @@ class EffectWidgetClassVisitor(nextVisitor: ClassVisitor, private val className:
                                 "onAttachedToWindow",
                                 "()V",
                                 false)
-                            methodVisitor.visitVarInsn(ALOAD, 0)
                         }
                         "onDetachedFromWindow" -> {
                             onDetachedFromWindowMethodExist = true
@@ -130,7 +127,6 @@ class EffectWidgetClassVisitor(nextVisitor: ClassVisitor, private val className:
                                 "onDetachedFromWindow",
                                 "()V",
                                 false)
-                            methodVisitor.visitVarInsn(ALOAD, 0)
                         }
                         "setPressed" -> {
                             setPressedMethodExist = true
@@ -146,7 +142,6 @@ class EffectWidgetClassVisitor(nextVisitor: ClassVisitor, private val className:
                                 "setPressed",
                                 "(Z)V",
                                 false)
-                            methodVisitor.visitVarInsn(ALOAD, 0)
                         }
                         "onHoverChanged" -> {
                             onHoverChangedMethodExist = true
@@ -162,7 +157,6 @@ class EffectWidgetClassVisitor(nextVisitor: ClassVisitor, private val className:
                                 "onHoverChanged",
                                 "(Z)V",
                                 false)
-                            methodVisitor.visitVarInsn(ALOAD, 0)
                         }
                     }
                     super.onMethodEnter()

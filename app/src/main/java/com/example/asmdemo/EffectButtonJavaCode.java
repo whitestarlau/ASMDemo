@@ -7,8 +7,6 @@ import android.view.MotionEvent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-//import com.example.asmdemo.EffectHelper;
-
 public class EffectButtonJavaCode extends androidx.appcompat.widget.AppCompatButton {
 
     public EffectButtonJavaCode(@NonNull Context context) {
