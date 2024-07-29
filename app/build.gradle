@@ -1,6 +1,8 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+
+    id 'com.example.asm' version "1.1"
 }
 
 android {
@@ -32,8 +34,8 @@ android {
     }
 }
 
-import com.example.asm.effectwidget.EffectWidgetPlugin
-apply plugin: EffectWidgetPlugin
+//import com.example.asm.effectwidget.EffectWidgetPlugin
+//apply plugin: EffectWidgetPlugin
 
 dependencies {
     implementation 'androidx.core:core-ktx:1.7.0'
