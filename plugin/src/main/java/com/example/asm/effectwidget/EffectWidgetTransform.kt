@@ -11,7 +11,12 @@ abstract class EffectWidgetTransform : AsmClassVisitorFactory<InstrumentationPar
         classContext: ClassContext,
         nextClassVisitor: ClassVisitor
     ): ClassVisitor {
-        val cv =  EffectWidgetClassVisitor(nextClassVisitor, classContext.currentClassData.className)
+        val superClassName = classContext.currentClassData.superClasses.firstOrNull() ?: ""
+        val cv = EffectWidgetClassVisitor(
+            nextClassVisitor,
+            classContext.currentClassData.className,
+            superClassName
+        )
 
         return cv
     }

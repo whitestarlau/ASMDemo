@@ -11,8 +11,13 @@ import org.objectweb.asm.commons.AdviceAdapter
 /**
  * 插入代码的方法大量参考 ASM Bytecode Viewer 插件生成
  */
-class EffectWidgetClassVisitor(nextVisitor: ClassVisitor, private val className: String) :
-    ClassVisitor(Opcodes.ASM5, nextVisitor) {
+class EffectWidgetClassVisitor(
+    nextVisitor: ClassVisitor,
+    private val className: String,
+    val superClassName: String
+) : ClassVisitor(Opcodes.ASM5, nextVisitor) {
+
+    val superClass = superClassName.replace('.', '/')
 
     val classOwner: String = className.replace('.', '/')
     val classDescriptor: String = "L${classOwner};"
@@ -73,90 +78,119 @@ class EffectWidgetClassVisitor(nextVisitor: ClassVisitor, private val className:
                         "dispatchGenericMotionEvent" -> {
                             dispatchGenericMotionEventMethodExist = true
                             methodVisitor.visitVarInsn(ALOAD, 0)
-                            methodVisitor.visitMethodInsn(INVOKESPECIAL,
+                            methodVisitor.visitMethodInsn(
+                                INVOKESPECIAL,
                                 classOwner,
                                 getEffectHelperFuncName,
                                 getEffectHelperFuncDescriptor,
-                                false);
+                                false
+                            );
                             methodVisitor.visitVarInsn(ALOAD, 1)
-                            methodVisitor.visitMethodInsn(INVOKEVIRTUAL,
+                            methodVisitor.visitMethodInsn(
+                                INVOKEVIRTUAL,
                                 effectHelperOwner,
                                 "dispatchGenericMotionEvent",
                                 "(Landroid/view/MotionEvent;)V",
-                                false)
+                                false
+                            )
                         }
+
                         "dispatchTouchEvent" -> {
                             dispatchTouchEventMethodExist = true
                             methodVisitor.visitVarInsn(ALOAD, 0)
-                            methodVisitor.visitMethodInsn(INVOKESPECIAL,
+                            methodVisitor.visitMethodInsn(
+                                INVOKESPECIAL,
                                 classOwner,
                                 getEffectHelperFuncName,
                                 getEffectHelperFuncDescriptor,
-                                false);
+                                false
+                            );
                             methodVisitor.visitVarInsn(ALOAD, 1)
-                            methodVisitor.visitMethodInsn(INVOKEVIRTUAL,
+                            methodVisitor.visitMethodInsn(
+                                INVOKEVIRTUAL,
                                 effectHelperOwner,
                                 "dispatchTouchEvent",
                                 "(Landroid/view/MotionEvent;)V",
-                                false)
+                                false
+                            )
                         }
+
                         "onAttachedToWindow" -> {
                             onAttachedToWindowMethodExist = true
                             methodVisitor.visitVarInsn(ALOAD, 0)
-                            methodVisitor.visitMethodInsn(INVOKESPECIAL,
+                            methodVisitor.visitMethodInsn(
+                                INVOKESPECIAL,
                                 classOwner,
                                 getEffectHelperFuncName,
                                 getEffectHelperFuncDescriptor,
-                                false)
-                            methodVisitor.visitMethodInsn(INVOKEVIRTUAL,
+                                false
+                            )
+                            methodVisitor.visitMethodInsn(
+                                INVOKEVIRTUAL,
                                 effectHelperOwner,
                                 "onAttachedToWindow",
                                 "()V",
-                                false)
+                                false
+                            )
                         }
+
                         "onDetachedFromWindow" -> {
                             onDetachedFromWindowMethodExist = true
                             methodVisitor.visitVarInsn(ALOAD, 0)
-                            methodVisitor.visitMethodInsn(INVOKESPECIAL,
+                            methodVisitor.visitMethodInsn(
+                                INVOKESPECIAL,
                                 classOwner,
                                 getEffectHelperFuncName,
                                 getEffectHelperFuncDescriptor,
-                                false)
-                            methodVisitor.visitMethodInsn(INVOKEVIRTUAL,
+                                false
+                            )
+                            methodVisitor.visitMethodInsn(
+                                INVOKEVIRTUAL,
                                 effectHelperOwner,
                                 "onDetachedFromWindow",
                                 "()V",
-                                false)
+                                false
+                            )
                         }
+
                         "setPressed" -> {
                             setPressedMethodExist = true
                             methodVisitor.visitVarInsn(ALOAD, 0)
-                            methodVisitor.visitMethodInsn(INVOKESPECIAL,
+                            methodVisitor.visitMethodInsn(
+                                INVOKESPECIAL,
                                 classOwner,
                                 getEffectHelperFuncName,
                                 getEffectHelperFuncDescriptor,
-                                false);
+                                false
+                            );
                             methodVisitor.visitVarInsn(ALOAD, 1)
-                            methodVisitor.visitMethodInsn(INVOKEVIRTUAL,
+                            methodVisitor.visitMethodInsn(
+                                INVOKEVIRTUAL,
                                 effectHelperOwner,
                                 "setPressed",
                                 "(Z)V",
-                                false)
+                                false
+                            )
                         }
+
                         "onHoverChanged" -> {
                             onHoverChangedMethodExist = true
                             methodVisitor.visitVarInsn(ALOAD, 0)
-                            methodVisitor.visitMethodInsn(INVOKESPECIAL,
+                            methodVisitor.visitMethodInsn(
+                                INVOKESPECIAL,
                                 classOwner,
                                 getEffectHelperFuncName,
                                 getEffectHelperFuncDescriptor,
-                                false);
+                                false
+                            );
                             methodVisitor.visitVarInsn(ALOAD, 1)
-                            methodVisitor.visitMethodInsn(INVOKEVIRTUAL,
+                            methodVisitor.visitMethodInsn(
+                                INVOKEVIRTUAL,
                                 effectHelperOwner,
                                 "onHoverChanged",
                                 "(Z)V",
-                                false)
+                                false
+                            )
                         }
                     }
                     super.onMethodEnter()
@@ -177,8 +211,10 @@ class EffectWidgetClassVisitor(nextVisitor: ClassVisitor, private val className:
         println("visitEnd.")
 
         //新增mEffectHelper字段
-        val fvEffectHelper = cv.visitField(Opcodes.ACC_PRIVATE, "mEffectHelper",
-            effectHelperDescriptor, null, null);
+        val fvEffectHelper = cv.visitField(
+            Opcodes.ACC_PRIVATE, "mEffectHelper",
+            effectHelperDescriptor, null, null
+        );
         if (fvEffectHelper != null) {
             fvEffectHelper.visitEnd()
         }
@@ -222,141 +258,175 @@ class EffectWidgetClassVisitor(nextVisitor: ClassVisitor, private val className:
      */
     private fun makeGetOSUIEffectHelperFunc() {
         println("added getOSUIEffectHelper owner:${classOwner}")
-        val methodVisitor = cv.visitMethod(Opcodes.ACC_PRIVATE,
+        val methodVisitor = cv.visitMethod(
+            Opcodes.ACC_PRIVATE,
             getEffectHelperFuncName,
             getEffectHelperFuncDescriptor,
             null,
-            null)
+            null
+        )
         methodVisitor.visitCode()
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0)
-        methodVisitor.visitFieldInsn(Opcodes.GETFIELD,
+        methodVisitor.visitFieldInsn(
+            Opcodes.GETFIELD,
             classOwner,
             "mEffectHelper",
-            effectHelperDescriptor)
+            effectHelperDescriptor
+        )
         val label0 = Label()
         methodVisitor.visitJumpInsn(Opcodes.IFNONNULL, label0)
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0)
         methodVisitor.visitTypeInsn(Opcodes.NEW, effectHelperOwner)
         methodVisitor.visitInsn(Opcodes.DUP)
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0)
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL,
+        methodVisitor.visitMethodInsn(
+            Opcodes.INVOKESPECIAL,
             effectHelperOwner,
             "<init>",
             "(Landroid/view/View;)V",
-            false)
-        methodVisitor.visitFieldInsn(Opcodes.PUTFIELD,
+            false
+        )
+        methodVisitor.visitFieldInsn(
+            Opcodes.PUTFIELD,
             classOwner,
             "mEffectHelper",
-            effectHelperDescriptor)
+            effectHelperDescriptor
+        )
         methodVisitor.visitLabel(label0)
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0)
-        methodVisitor.visitFieldInsn(Opcodes.GETFIELD,
+        methodVisitor.visitFieldInsn(
+            Opcodes.GETFIELD,
             classOwner,
             "mEffectHelper",
-            effectHelperDescriptor)
+            effectHelperDescriptor
+        )
         methodVisitor.visitInsn(Opcodes.ARETURN)
         methodVisitor.visitMaxs(4, 1)
         methodVisitor.visitEnd()
     }
 
     private fun makeNewDispatchGenericMotionEvent() {
-        val methodVisitor = cv.visitMethod(Opcodes.ACC_PUBLIC,
+        val methodVisitor = cv.visitMethod(
+            Opcodes.ACC_PUBLIC,
             "dispatchGenericMotionEvent",
             "(Landroid/view/MotionEvent;)Z",
             null,
-            null)
+            null
+        )
         methodVisitor.visitCode()
         val label0 = Label()
         methodVisitor.visitLabel(label0)
 //        methodVisitor.visitLineNumber(28, label0)
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0)
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL,
+        methodVisitor.visitMethodInsn(
+            Opcodes.INVOKESPECIAL,
             classOwner,
             getEffectHelperFuncName,
             getEffectHelperFuncDescriptor,
-            false)
+            false
+        )
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 1)
-        methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+        methodVisitor.visitMethodInsn(
+            Opcodes.INVOKEVIRTUAL,
             effectHelperOwner,
             "dispatchGenericMotionEvent",
             "(Landroid/view/MotionEvent;)V",
-            false)
+            false
+        )
         val label1 = Label()
         methodVisitor.visitLabel(label1)
 //        methodVisitor.visitLineNumber(29, label1)
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0)
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 1)
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL,
-            "androidx/appcompat/widget/AppCompatButton",
+        methodVisitor.visitMethodInsn(
+            Opcodes.INVOKESPECIAL,
+            superClass,
             "dispatchGenericMotionEvent",
             "(Landroid/view/MotionEvent;)Z",
-            false)
+            false
+        )
         methodVisitor.visitInsn(Opcodes.IRETURN)
         val label2 = Label()
         methodVisitor.visitLabel(label2)
-        methodVisitor.visitLocalVariable("this",
+        methodVisitor.visitLocalVariable(
+            "this",
             classDescriptor,
             null,
             label0,
             label2,
-            0)
-        methodVisitor.visitLocalVariable("event",
+            0
+        )
+        methodVisitor.visitLocalVariable(
+            "event",
             "Landroid/view/MotionEvent;",
             null,
             label0,
             label2,
-            1)
+            1
+        )
         methodVisitor.visitMaxs(2, 2)
         methodVisitor.visitEnd()
     }
 
     private fun makeNewDispatchTouchEvent() {
-        val methodVisitor = cv.visitMethod(Opcodes.ACC_PUBLIC,
+        val methodVisitor = cv.visitMethod(
+            Opcodes.ACC_PUBLIC,
             "dispatchTouchEvent",
             "(Landroid/view/MotionEvent;)Z",
             null,
-            null)
+            null
+        )
         methodVisitor.visitCode()
         val label0 = Label()
         methodVisitor.visitLabel(label0)
 //        methodVisitor.visitLineNumber(27, label0)
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0)
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL,
+        methodVisitor.visitMethodInsn(
+            Opcodes.INVOKESPECIAL,
             classOwner,
             getEffectHelperFuncName,
             getEffectHelperFuncDescriptor,
-            false)
+            false
+        )
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 1)
-        methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+        methodVisitor.visitMethodInsn(
+            Opcodes.INVOKEVIRTUAL,
             effectHelperOwner,
             "dispatchTouchEvent",
             "(Landroid/view/MotionEvent;)V",
-            false)
+            false
+        )
         val label1 = Label()
         methodVisitor.visitLabel(label1)
 //        methodVisitor.visitLineNumber(28, label1)
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0)
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 1)
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL,
-            "androidx/appcompat/widget/AppCompatButton",
+        methodVisitor.visitMethodInsn(
+            Opcodes.INVOKESPECIAL,
+            superClass,
             "dispatchTouchEvent",
             "(Landroid/view/MotionEvent;)Z",
-            false)
+            false
+        )
         methodVisitor.visitInsn(Opcodes.IRETURN)
         val label2 = Label()
         methodVisitor.visitLabel(label2)
-        methodVisitor.visitLocalVariable("this",
+        methodVisitor.visitLocalVariable(
+            "this",
             classDescriptor,
             null,
             label0,
             label2,
-            0)
-        methodVisitor.visitLocalVariable("event",
+            0
+        )
+        methodVisitor.visitLocalVariable(
+            "event",
             "Landroid/view/MotionEvent;",
             null,
             label0,
             label2,
-            1)
+            1
+        )
         methodVisitor.visitMaxs(2, 2)
         methodVisitor.visitEnd()
     }
@@ -369,37 +439,45 @@ class EffectWidgetClassVisitor(nextVisitor: ClassVisitor, private val className:
         methodVisitor.visitLabel(label0)
 //        methodVisitor.visitLineNumber(40, label0)
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0)
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL,
+        methodVisitor.visitMethodInsn(
+            Opcodes.INVOKESPECIAL,
             classOwner,
             getEffectHelperFuncName,
             getEffectHelperFuncDescriptor,
-            false)
-        methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+            false
+        )
+        methodVisitor.visitMethodInsn(
+            Opcodes.INVOKEVIRTUAL,
             effectHelperOwner,
             "onAttachedToWindow",
             "()V",
-            false)
+            false
+        )
         val label1 = Label()
         methodVisitor.visitLabel(label1)
 //        methodVisitor.visitLineNumber(41, label1)
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0)
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL,
-            "androidx/appcompat/widget/AppCompatButton",
+        methodVisitor.visitMethodInsn(
+            Opcodes.INVOKESPECIAL,
+            superClass,
             "onAttachedToWindow",
             "()V",
-            false)
+            false
+        )
         val label2 = Label()
         methodVisitor.visitLabel(label2)
 //        methodVisitor.visitLineNumber(42, label2)
         methodVisitor.visitInsn(Opcodes.RETURN)
         val label3 = Label()
         methodVisitor.visitLabel(label3)
-        methodVisitor.visitLocalVariable("this",
+        methodVisitor.visitLocalVariable(
+            "this",
             classDescriptor,
             null,
             label0,
             label3,
-            0)
+            0
+        )
         methodVisitor.visitMaxs(1, 1)
         methodVisitor.visitEnd()
     }
@@ -413,82 +491,100 @@ class EffectWidgetClassVisitor(nextVisitor: ClassVisitor, private val className:
         methodVisitor.visitLabel(label0)
 //        methodVisitor.visitLineNumber(46, label0)
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0)
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL,
+        methodVisitor.visitMethodInsn(
+            Opcodes.INVOKESPECIAL,
             classOwner,
             getEffectHelperFuncName,
             getEffectHelperFuncDescriptor,
-            false)
-        methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+            false
+        )
+        methodVisitor.visitMethodInsn(
+            Opcodes.INVOKEVIRTUAL,
             effectHelperOwner,
             "onDetachedFromWindow",
             "()V",
-            false)
+            false
+        )
         val label1 = Label()
         methodVisitor.visitLabel(label1)
 //        methodVisitor.visitLineNumber(47, label1)
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0)
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL,
-            "androidx/appcompat/widget/AppCompatButton",
+        methodVisitor.visitMethodInsn(
+            Opcodes.INVOKESPECIAL,
+            superClass,
             "onDetachedFromWindow",
             "()V",
-            false)
+            false
+        )
         val label2 = Label()
         methodVisitor.visitLabel(label2)
 //        methodVisitor.visitLineNumber(48, label2)
         methodVisitor.visitInsn(Opcodes.RETURN)
         val label3 = Label()
         methodVisitor.visitLabel(label3)
-        methodVisitor.visitLocalVariable("this",
+        methodVisitor.visitLocalVariable(
+            "this",
             classDescriptor,
             null,
             label0,
             label3,
-            0)
+            0
+        )
         methodVisitor.visitMaxs(1, 1)
         methodVisitor.visitEnd()
     }
 
     private fun makeNewSetPress() {
-        val methodVisitor = cv.visitMethod(Opcodes.ACC_PUBLIC,
-            "setPressed", "(Z)V", null, null)
+        val methodVisitor = cv.visitMethod(
+            Opcodes.ACC_PUBLIC,
+            "setPressed", "(Z)V", null, null
+        )
         methodVisitor.visitCode()
         val label0 = Label()
         methodVisitor.visitLabel(label0)
 //        methodVisitor.visitLineNumber(52, label0)
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0)
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL,
+        methodVisitor.visitMethodInsn(
+            Opcodes.INVOKESPECIAL,
             classOwner,
             getEffectHelperFuncName,
             getEffectHelperFuncDescriptor,
-            false)
+            false
+        )
         methodVisitor.visitVarInsn(Opcodes.ILOAD, 1)
-        methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+        methodVisitor.visitMethodInsn(
+            Opcodes.INVOKEVIRTUAL,
             effectHelperOwner,
             "setPressed",
             "(Z)V",
-            false)
+            false
+        )
         val label1 = Label()
         methodVisitor.visitLabel(label1)
 //        methodVisitor.visitLineNumber(53, label1)
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0)
         methodVisitor.visitVarInsn(Opcodes.ILOAD, 1)
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL,
-            "androidx/appcompat/widget/AppCompatButton",
+        methodVisitor.visitMethodInsn(
+            Opcodes.INVOKESPECIAL,
+            superClass,
             "setPressed",
             "(Z)V",
-            false)
+            false
+        )
         val label2 = Label()
         methodVisitor.visitLabel(label2)
 //        methodVisitor.visitLineNumber(54, label2)
         methodVisitor.visitInsn(Opcodes.RETURN)
         val label3 = Label()
         methodVisitor.visitLabel(label3)
-        methodVisitor.visitLocalVariable("this",
+        methodVisitor.visitLocalVariable(
+            "this",
             classDescriptor,
             null,
             label0,
             label3,
-            0)
+            0
+        )
         methodVisitor.visitLocalVariable("pressed", "Z", null, label0, label3, 1)
         methodVisitor.visitMaxs(2, 2)
         methodVisitor.visitEnd()
@@ -501,39 +597,47 @@ class EffectWidgetClassVisitor(nextVisitor: ClassVisitor, private val className:
         methodVisitor.visitLabel(label0)
 //        methodVisitor.visitLineNumber(58, label0)
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0)
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL,
+        methodVisitor.visitMethodInsn(
+            Opcodes.INVOKESPECIAL,
             classOwner,
             getEffectHelperFuncName,
             getEffectHelperFuncDescriptor,
-            false)
+            false
+        )
         methodVisitor.visitVarInsn(Opcodes.ILOAD, 1)
-        methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+        methodVisitor.visitMethodInsn(
+            Opcodes.INVOKEVIRTUAL,
             effectHelperOwner,
             "onHoverChanged",
             "(Z)V",
-            false)
+            false
+        )
         val label1 = Label()
         methodVisitor.visitLabel(label1)
 //        methodVisitor.visitLineNumber(59, label1)
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0)
         methodVisitor.visitVarInsn(Opcodes.ILOAD, 1)
-        methodVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL,
-            "androidx/appcompat/widget/AppCompatButton",
+        methodVisitor.visitMethodInsn(
+            Opcodes.INVOKESPECIAL,
+            superClass,
             "onHoverChanged",
             "(Z)V",
-            false)
+            false
+        )
         val label2 = Label()
         methodVisitor.visitLabel(label2)
 //        methodVisitor.visitLineNumber(60, label2)
         methodVisitor.visitInsn(Opcodes.RETURN)
         val label3 = Label()
         methodVisitor.visitLabel(label3)
-        methodVisitor.visitLocalVariable("this",
+        methodVisitor.visitLocalVariable(
+            "this",
             classDescriptor,
             null,
             label0,
             label3,
-            0)
+            0
+        )
         methodVisitor.visitLocalVariable("hovered", "Z", null, label0, label3, 1)
         methodVisitor.visitMaxs(2, 2)
         methodVisitor.visitEnd()
